@@ -1,0 +1,25 @@
+# Python cache — auto-generated, never commit
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment — too large, recreatable
+venv/
+env/
+
+# Environment variables — YOUR API KEYS LIVE HERE, NEVER commit
+.env
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# Database files
+*.db
+*.sqlite
+
+# VS Code settings
+.vscode/
+
+# Windows OS files
+Thumbs.db
+desktop.ini
