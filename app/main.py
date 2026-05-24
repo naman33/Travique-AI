@@ -1,20 +1,16 @@
 import streamlit as st
+from services.ai_service import generate_itinerary
 
-# Page configuration — always the first Streamlit command
 st.set_page_config(
     page_title="Travique AI",
     page_icon="✈️",
     layout="wide"
 )
 
-# Main heading
 st.title("✈️ Travique AI")
 st.subheader("Your personal AI travel planner")
-
-# A simple divider
 st.divider()
 
-# Two columns — left for inputs, right for output
 left, right = st.columns([1, 1])
 
 with left:
@@ -61,8 +57,22 @@ with right:
         if not destination:
             st.warning("Please enter a destination first.")
         else:
-            st.info(f"Generating a {days}-day itinerary for {destination}...")
-            # AI integration comes in the next step
+            # Show a spinner while AI is thinking
+            with st.spinner("Travique AI is planning your trip..."):
+                try:
+                    itinerary = generate_itinerary(
+                        destination=destination,
+                        days=days,
+                        budget=budget,
+                        interests=interests,
+                        travel_style=travel_style
+                    )
+                    # Display the result
+                    st.success("Your itinerary is ready!")
+                    st.markdown(itinerary)
+
+                except Exception as e:
+                    st.error(f"Something went wrong: {str(e)}")
     else:
         st.markdown(
             "Fill in your trip details on the left and "
