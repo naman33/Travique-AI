@@ -82,7 +82,7 @@ def budget_label(amount):
 
 # ── Sidebar ───────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("## ✈️ Travique AI")
+    st.markdown("## Travique AI")
     st.caption("Personal AI travel planner")
     st.divider()
 
@@ -148,7 +148,7 @@ with st.sidebar:
 
 
 # ── Main area ─────────────────────────────────────────────────
-st.title("✈️ Travique AI")
+st.title("Travique AI")
 st.caption("Personalised day-by-day travel plans powered by Gemini AI")
 st.divider()
 
