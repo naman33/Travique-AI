@@ -103,3 +103,5 @@ the Streamlit secrets manager — API keys never touch GitHub.
 ## Author
 
 Naman Pal — [github.com/naman33](https://github.com/naman33)
+---
+*Built with Python, Streamlit, and Google Gemini.
