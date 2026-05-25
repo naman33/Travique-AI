@@ -1,13 +1,35 @@
 from google import genai
-from dotenv import load_dotenv
+import streamlit as st
 import os
+from dotenv import load_dotenv
 
+# Load .env for local development
 load_dotenv()
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+
+def get_api_key():
+    """
+    Gets the API key from the right place depending on environment.
+    
+    Local development  → reads from .env file
+    Streamlit Cloud    → reads from st.secrets
+    
+    This is the professional way to handle secrets across environments.
+    """
+    # Try Streamlit secrets first (production)
+    try:
+        return st.secrets["GEMINI_API_KEY"]
+    except Exception:
+        # Fall back to .env (local development)
+        return os.getenv("GEMINI_API_KEY")
 
 
 def generate_itinerary(destination, days, budget_inr, budget_label,
                        interests, travel_style, food_prefs=None):
+
+    # Get key from the right source
+    api_key = get_api_key()
+    client = genai.Client(api_key=api_key)
 
     interests_str = ", ".join(interests) if interests else "general sightseeing"
     food_str = ", ".join(food_prefs) if food_prefs else "no restrictions"
@@ -26,9 +48,9 @@ def generate_itinerary(destination, days, budget_inr, budget_label,
     - Travel style: {travel_style}
     - Food preferences: {food_str}
 
-    IMPORTANT: Show all costs in Indian Rupees (₹). 
+    IMPORTANT: Show all costs in Indian Rupees (₹).
     Convert local currency to INR approximately.
-    Respect food preferences strictly — if vegetarian, suggest no meat.
+    Respect food preferences strictly.
     If "Desserts & sweets" is in preferences, recommend local desserts each day.
 
     Use EXACTLY this structure. Always start each day with "DAY" in capitals:
