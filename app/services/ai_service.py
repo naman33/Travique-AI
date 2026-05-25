@@ -2,59 +2,65 @@ from google import genai
 from dotenv import load_dotenv
 import os
 
-# Load API key from .env file
 load_dotenv()
-
-# Initialize the new client
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 
-def generate_itinerary(destination, days, budget, interests, travel_style):
-    """
-    Takes trip details and returns a complete AI-generated itinerary.
-    This is the core function of Travique AI.
-    """
+def generate_itinerary(destination, days, budget_inr, budget_label,
+                       interests, travel_style, food_prefs=None):
 
     interests_str = ", ".join(interests) if interests else "general sightseeing"
+    food_str = ", ".join(food_prefs) if food_prefs else "no restrictions"
+    total_budget = budget_inr * days
 
     prompt = f"""
-    You are Travique AI, an expert travel planner with deep knowledge of 
-    destinations worldwide. Create a detailed, personalized travel itinerary.
+    You are Travique AI, an expert travel planner. Create a detailed, 
+    personalised travel itinerary for an Indian traveller.
 
     TRIP DETAILS:
     - Destination: {destination}
     - Duration: {days} days
-    - Budget: {budget}
+    - Daily budget per person: ₹{budget_inr:,} ({budget_label} level)
+    - Total trip budget: ₹{total_budget:,}
     - Interests: {interests_str}
-    - Travel Style: {travel_style}
+    - Travel style: {travel_style}
+    - Food preferences: {food_str}
 
-    Create a day-by-day itinerary with this exact structure for each day:
+    IMPORTANT: Show all costs in Indian Rupees (₹). 
+    Convert local currency to INR approximately.
+    Respect food preferences strictly — if vegetarian, suggest no meat.
+    If "Desserts & sweets" is in preferences, recommend local desserts each day.
 
-    DAY [number]: [Theme for the day]
+    Use EXACTLY this structure. Always start each day with "DAY" in capitals:
+
+    DAY [number]: [Creative theme for the day]
 
     Morning (9:00 AM):
-    - Activity with brief description
-    - Estimated cost
+    - Activity: [specific real place with 1-line description]
+    - Estimated cost: ₹[amount]
 
     Afternoon (1:00 PM):
-    - Activity with brief description
-    - Estimated cost
+    - Activity: [specific real place with 1-line description]
+    - Estimated cost: ₹[amount]
 
     Evening (6:00 PM):
-    - Activity with brief description
-    - Recommended restaurant with cuisine type
+    - Activity: [specific real place]
+    - Restaurant: [real restaurant name, cuisine, price per person ₹]
 
-    DAILY BUDGET ESTIMATE: $XX - $XX
+    Daily budget estimate: ₹[min]–₹[max]
 
-    After all days, add:
+    ---
+
+    After all days add:
 
     TRAVEL TIPS:
-    - 3 specific tips for this destination
+    - [3 practical tips specific to this destination]
 
-    BEST TIME TO VISIT: One sentence
+    BEST TIME TO VISIT:
+    - [One sentence with specific months]
 
-    Keep the tone friendly and enthusiastic. Be specific with real place names,
-    real restaurants, real attractions. Make it feel like advice from a local friend.
+    Be specific. Use real place names and real restaurants.
+    Friendly, enthusiastic tone like a well-travelled friend.
     """
 
     response = client.models.generate_content(
