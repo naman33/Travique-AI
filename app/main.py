@@ -2,8 +2,14 @@ import streamlit as st
 import sys
 import os
 
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from services.ai_service import generate_itinerary
+from data.database import init_db, save_itinerary
+
+# Initialize database on startup
+init_db()
 
 st.set_page_config(
     page_title="Travique AI",
@@ -51,9 +57,6 @@ st.markdown("""
         font-size: 0.78rem;
         color: #a89ef5;
         margin-top: 4px;
-    }
-    div[data-testid="stNumberInput"] input {
-        font-size: 0.95rem;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -152,6 +155,8 @@ st.title("Travique AI")
 st.caption("Personalised day-by-day travel plans powered by Gemini AI")
 st.divider()
 
+# ── Handle Generate button ────────────────────────────────────
+# When Generate is clicked, run AI and store result in session state
 if generate:
     if not destination:
         st.warning("Please enter a destination in the sidebar.")
@@ -161,7 +166,6 @@ if generate:
 
         status.info("Researching your destination...")
         progress.progress(25)
-
         status.info("Planning your day-by-day route...")
         progress.progress(55)
 
@@ -182,56 +186,113 @@ if generate:
             status.empty()
             progress.empty()
 
-            # ── Summary card ──────────────────────────────────
-            st.markdown(f"""
-            <div class="summary-card">
-                <h2 style="margin:0 0 0.4rem 0">📍 {destination}</h2>
-                <p style="margin:0; color:#aaa; font-size:0.9rem">
-                    {int(days)} days &nbsp;·&nbsp;
-                    {int(travelers)} traveller(s) &nbsp;·&nbsp;
-                    {level} &nbsp;·&nbsp;
-                    {travel_style}
-                </p>
-                <p style="margin:0.3rem 0 0 0; color:#aaa; font-size:0.9rem">
-                    {format_inr(budget_inr)}/day per person
-                    &nbsp;·&nbsp;
-                    Total estimate ₹{total:,}
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
-
-            # ── Day tabs ──────────────────────────────────────
-            sections = itinerary_text.split("DAY ")
-            intro = sections[0].strip()
-            day_sections = sections[1:]
-
-            if intro:
-                st.markdown(intro)
-                st.divider()
-
-            if day_sections:
-                tabs = st.tabs([f"Day {i+1}" for i in range(len(day_sections))])
-                for i, tab in enumerate(tabs):
-                    with tab:
-                        st.markdown(f"**DAY {day_sections[i]}**")
-            else:
-                st.markdown(itinerary_text)
-
-            st.divider()
-            st.download_button(
-                label="Download Itinerary",
-                data=itinerary_text,
-                file_name=f"Travique_{destination}_{days}days.txt",
-                mime="text/plain"
-            )
+            # Store everything in session state
+            # This persists even when Save button is clicked
+            st.session_state["itinerary_text"] = itinerary_text
+            st.session_state["last_destination"] = destination
+            st.session_state["last_days"] = int(days)
+            st.session_state["last_travelers"] = int(travelers)
+            st.session_state["last_budget_inr"] = budget_inr
+            st.session_state["last_level"] = level
+            st.session_state["last_travel_style"] = travel_style
+            st.session_state["last_interests"] = interests
+            st.session_state["last_food_prefs"] = food_prefs
+            st.session_state["already_saved"] = False
 
         except Exception as e:
             status.empty()
             progress.empty()
             st.error(f"Something went wrong: {str(e)}")
 
+
+# ── Display itinerary from session state ──────────────────────
+# This block runs on EVERY rerun — including when Save is clicked
+# So the itinerary stays visible no matter what button is pressed
+if "itinerary_text" in st.session_state:
+
+    itinerary_text = st.session_state["itinerary_text"]
+    dest = st.session_state["last_destination"]
+    d = st.session_state["last_days"]
+    t = st.session_state["last_travelers"]
+    b = st.session_state["last_budget_inr"]
+    lv = st.session_state["last_level"]
+    ts = st.session_state["last_travel_style"]
+    intr = st.session_state["last_interests"]
+    total_est = b * d * t
+
+    # Summary card
+    st.markdown(f"""
+    <div class="summary-card">
+        <h2 style="margin:0 0 0.4rem 0">📍 {dest}</h2>
+        <p style="margin:0; color:#aaa; font-size:0.9rem">
+            {d} days &nbsp;·&nbsp;
+            {t} traveller(s) &nbsp;·&nbsp;
+            {lv} &nbsp;·&nbsp;
+            {ts}
+        </p>
+        <p style="margin:0.3rem 0 0 0; color:#aaa; font-size:0.9rem">
+            {format_inr(b)}/day per person
+            &nbsp;·&nbsp;
+            Total estimate ₹{total_est:,}
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Day tabs
+    sections = itinerary_text.split("DAY ")
+    intro = sections[0].strip()
+    day_sections = sections[1:]
+
+    if intro:
+        st.markdown(intro)
+        st.divider()
+
+    if day_sections:
+        tabs = st.tabs([f"Day {i+1}" for i in range(len(day_sections))])
+        for i, tab in enumerate(tabs):
+            with tab:
+                st.markdown(f"**DAY {day_sections[i]}**")
+    else:
+        st.markdown(itinerary_text)
+
+    st.divider()
+
+    # Action buttons — always visible as long as itinerary exists
+    col_save, col_download = st.columns(2)
+
+    with col_save:
+        # Show "Already saved" if saved, otherwise show Save button
+        if st.session_state.get("already_saved"):
+            st.success("Itinerary already saved.")
+        else:
+            if st.button("Save Itinerary", type="primary"):
+                try:
+                    save_itinerary(
+                        destination=st.session_state["last_destination"],
+                        days=st.session_state["last_days"],
+                        travelers=st.session_state["last_travelers"],
+                        budget_inr=st.session_state["last_budget_inr"],
+                        budget_label=st.session_state["last_level"],
+                        travel_style=st.session_state["last_travel_style"],
+                        interests=st.session_state["last_interests"],
+                        food_prefs=st.session_state["last_food_prefs"],
+                        itinerary_text=st.session_state["itinerary_text"]
+                    )
+                    st.session_state["already_saved"] = True
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Could not save: {str(e)}")
+
+    with col_download:
+        st.download_button(
+            label="Download Itinerary",
+            data=itinerary_text,
+            file_name=f"Travique_{dest}_{d}days.txt",
+            mime="text/plain"
+        )
+
 else:
-    # ── Empty state ───────────────────────────────────────────
+    # Empty state
     col1, col2, col3 = st.columns(3)
 
     with col1:
