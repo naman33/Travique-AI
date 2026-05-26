@@ -3,31 +3,20 @@ import streamlit as st
 import os
 from dotenv import load_dotenv
 
-# Load .env for local development
 load_dotenv()
 
 
 def get_api_key():
-    """
-    Gets the API key from the right place depending on environment.
-    
-    Local development  → reads from .env file
-    Streamlit Cloud    → reads from st.secrets
-    
-    This is the professional way to handle secrets across environments.
-    """
-    # Try Streamlit secrets first (production)
     try:
         return st.secrets["GEMINI_API_KEY"]
     except Exception:
-        # Fall back to .env (local development)
         return os.getenv("GEMINI_API_KEY")
 
 
 def generate_itinerary(destination, days, budget_inr, budget_label,
-                       interests, travel_style, food_prefs=None):
+                       interests, travel_style, food_prefs=None,
+                       weather_info=None):
 
-    # Get key from the right source
     api_key = get_api_key()
     client = genai.Client(api_key=api_key)
 
@@ -35,8 +24,21 @@ def generate_itinerary(destination, days, budget_inr, budget_label,
     food_str = ", ".join(food_prefs) if food_prefs else "no restrictions"
     total_budget = budget_inr * days
 
+    weather_section = ""
+    if weather_info:
+        weather_section = f"""
+CURRENT WEATHER DATA:
+{weather_info}
+
+Use this weather data to:
+- Suggest indoor alternatives if rain is expected
+- Recommend early morning activities if afternoon heat is forecast
+- Mention what to pack based on conditions
+- Adjust the itinerary timing based on weather
+"""
+
     prompt = f"""
-    You are Travique AI, an expert travel planner. Create a detailed, 
+    You are Travique AI, an expert travel planner. Create a detailed,
     personalised travel itinerary for an Indian traveller.
 
     TRIP DETAILS:
@@ -47,6 +49,8 @@ def generate_itinerary(destination, days, budget_inr, budget_label,
     - Interests: {interests_str}
     - Travel style: {travel_style}
     - Food preferences: {food_str}
+
+    {weather_section}
 
     IMPORTANT: Show all costs in Indian Rupees (₹).
     Convert local currency to INR approximately.
