@@ -12,10 +12,12 @@ Built with Python, Streamlit, and Google Gemini 2.5 Flash.
 ## What it does
 
 - Generates complete day-by-day itineraries with timings and real place names
+- Fetches live weather for your destination and builds weather-aware suggestions
 - Adapts to your budget in Indian Rupees (INR)
 - Respects food preferences — vegetarian, halal, Jain, street food, and more
 - Shows estimated costs per activity in INR
-- Lets you download your itinerary as a text file
+- Save itineraries locally and revisit past trips
+- Download any itinerary as a text file for offline use
 
 ---
 
@@ -25,6 +27,8 @@ Built with Python, Streamlit, and Google Gemini 2.5 Flash.
 |---|---|
 | Frontend + Backend | Streamlit |
 | AI Model | Google Gemini 2.5 Flash |
+| Weather Data | OpenWeather API |
+| Database | SQLite |
 | Language | Python 3.13 |
 | Deployment | Streamlit Community Cloud |
 | Version Control | Git + GitHub |
@@ -92,11 +96,14 @@ the Streamlit secrets manager — API keys never touch GitHub.
 
 ## Roadmap
 
-- Save and revisit past itineraries (SQLite database)
-- Multi-turn travel chatbot for follow-up questions
-- Weather-aware suggestions via OpenWeather API
-- Google Maps links for every location
-- PDF export of itineraries
+- [x] AI itinerary generation with Gemini 2.5 Flash
+- [x] INR budget system with smart labels
+- [x] Live weather integration
+- [x] Save and revisit past itineraries
+- [ ] Multi-turn travel chatbot for follow-up questions
+- [ ] Cloud database (Supabase) for persistent saves on live app
+- [ ] Google Maps links for every location
+- [ ] PDF export of itineraries
 
 ---
 
