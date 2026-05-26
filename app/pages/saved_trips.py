@@ -17,6 +17,15 @@ st.title("Saved Trips")
 st.caption("All your previously generated itineraries")
 st.divider()
 
+IS_CLOUD = os.path.exists("/mount/src")
+if IS_CLOUD:
+    st.info(
+        "Saved trips are stored locally and not available "
+        "on the cloud version. Run the app locally to save "
+        "and view your itineraries."
+    )
+    st.stop()
+    
 # Get all saved itineraries
 itineraries = get_all_itineraries()
 count = get_itinerary_count()

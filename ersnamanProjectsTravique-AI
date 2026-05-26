@@ -1,0 +1,11 @@
+[33mbe5c820[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/feature/save-itineraries[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mfeature/save-itineraries[m[33m)[m feat: add SQLite database and saved trips page
+[33m3ca9130[m Merge pull request #2 from naman33/badge/yolo-pr
+[33m8ac3f86[m docs: edited Readme
+[33m2a3be2e[m docs: add README
+[33m1f4c4a5[m Added Dev Container Folder
+[33m918b776[m fix: simplify requirements.txt for Streamlit Cloud compatibility
+[33m3f5762d[m chore: add Streamlit config and multi-environment secret handling
+[33mb6093b2[m[33m ([m[1;31morigin/feature/improved-ui[m[33m, [m[1;32mfeature/improved-ui[m[33m)[m feat: improved UI with INR budget, clean sidebar, day tabs
+[33mb1aa226[m feat: integrate Gemini AI for itinerary generation
+[33m9fe0908[m feat: add main UI with trip planning form
+[33m7a9f7fd[m chore: initial project structure and dependencies
