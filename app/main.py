@@ -8,6 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from services.ai_service import generate_itinerary
 from data.database import init_db, save_itinerary
 from services.weather_service import get_weather, format_weather_for_prompt
+from services.chat_service import chat_with_travique
 
 init_db()
 
@@ -281,6 +282,98 @@ if "itinerary_text" in st.session_state and st.session_state["itinerary_text"]:
             file_name=f"Travique_{dest}_{d}days.txt",
             mime="text/plain"
         )
+    # ── Travel Chatbot ────────────────────────────────────────
+    st.divider()
+    st.markdown("### Ask Travique AI")
+    st.caption(
+        "Ask anything about your trip — modify the itinerary, "
+        "get packing tips, find alternatives, check costs."
+    )
+
+    # Initialize chat history in session state
+    if "chat_history" not in st.session_state:
+        st.session_state["chat_history"] = []
+
+    # Show suggestion chips for first-time users
+    if len(st.session_state["chat_history"]) == 0:
+        st.markdown("**Try asking:**")
+        col_s1, col_s2, col_s3 = st.columns(3)
+        with col_s1:
+            if st.button("What should I pack?", key="sugg1"):
+                st.session_state["pending_message"] = "What should I pack for this trip?"
+        with col_s2:
+            if st.button("Make day 1 cheaper", key="sugg2"):
+                st.session_state["pending_message"] = "Can you make day 1 more budget friendly?"
+        with col_s3:
+            if st.button("Best local food?", key="sugg3"):
+                st.session_state["pending_message"] = "What are the best local foods I must try?"
+
+    # Display existing chat messages
+    for msg in st.session_state["chat_history"]:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+    # Handle suggestion button clicks
+    if "pending_message" in st.session_state:
+        pending = st.session_state.pop("pending_message")
+        with st.chat_message("user"):
+            st.markdown(pending)
+        st.session_state["chat_history"].append({
+            "role": "user",
+            "content": pending
+        })
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                reply = chat_with_travique(
+                    user_message=pending,
+                    itinerary_text=st.session_state["itinerary_text"],
+                    destination=st.session_state["last_destination"],
+                    days=st.session_state["last_days"],
+                    budget_inr=st.session_state["last_budget_inr"],
+                    budget_label=st.session_state["last_level"],
+                    travel_style=st.session_state["last_travel_style"],
+                    chat_history=st.session_state["chat_history"]
+                )
+            st.markdown(reply)
+        st.session_state["chat_history"].append({
+            "role": "assistant",
+            "content": reply
+        })
+        st.rerun()
+
+    # Chat input box
+    user_input = st.chat_input("Ask anything about your trip...")
+
+    if user_input:
+        with st.chat_message("user"):
+            st.markdown(user_input)
+        st.session_state["chat_history"].append({
+            "role": "user",
+            "content": user_input
+        })
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                reply = chat_with_travique(
+                    user_message=user_input,
+                    itinerary_text=st.session_state["itinerary_text"],
+                    destination=st.session_state["last_destination"],
+                    days=st.session_state["last_days"],
+                    budget_inr=st.session_state["last_budget_inr"],
+                    budget_label=st.session_state["last_level"],
+                    travel_style=st.session_state["last_travel_style"],
+                    chat_history=st.session_state["chat_history"]
+                )
+            st.markdown(reply)
+        st.session_state["chat_history"].append({
+            "role": "assistant",
+            "content": reply
+        })
+
+    # Clear chat button
+    if len(st.session_state["chat_history"]) > 0:
+        if st.button("Clear chat", key="clear_chat"):
+            st.session_state["chat_history"] = []
+            st.rerun()
 
 else:
     # Empty state
