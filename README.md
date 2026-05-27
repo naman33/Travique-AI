@@ -5,18 +5,35 @@ travel plans based on your destination, budget, interests, and food preferences.
 
 Built with Python, Streamlit, and Google Gemini 2.5 Flash.
 
-**Live app:** https://travique-ai.streamlit.app
+**Live app:** https://travique-ai.streamlit.app  
+**GitHub:** https://github.com/naman33/Travique-AI
+
+---
+
+## Screenshots
+
+### Homepage
+![Homepage](docs/screenshots/screenshot-home.png)
+
+### Planning form
+![Form](docs/screenshots/screenshot-form.png)
+
+### Generated itinerary
+![Itinerary](docs/screenshots/screenshot-itinerary.png)
+
+### AI travel chatbot
+![Chatbot](docs/screenshots/screenshot-chat.png)
 
 ---
 
 ## What it does
 
-- Generates complete day-by-day itineraries with timings and real place names
-- Fetches live weather and builds weather-aware suggestions
-- Adapts to your budget in Indian Rupees (INR)
+- Generates complete day-by-day itineraries with real place names and timings
+- Fetches live weather for your destination and builds weather-aware suggestions
+- Adapts to your budget in Indian Rupees (INR) with smart budget labels
 - Respects food preferences — vegetarian, halal, Jain, street food, and more
 - Shows estimated costs per activity in INR
-- Chat with AI after generating — modify the itinerary, get packing tips, ask anything
+- Multi-turn AI chatbot — modify the itinerary, get packing tips, ask anything
 - Save itineraries locally and revisit past trips
 - Download any itinerary as a text file for offline use
 
@@ -36,18 +53,35 @@ Built with Python, Streamlit, and Google Gemini 2.5 Flash.
 
 ---
 
+## Architecture
+User Input (Streamlit Sidebar)
+↓
+Weather Service → OpenWeather API
+↓
+AI Service → Google Gemini 2.5 Flash
+↓
+Itinerary Display (Tabbed by Day)
+↓
+Travel Chatbot (Context-aware follow-ups)
+↓
+SQLite Database (Save / View / Delete)
+
+---
+
 ## Project structure
 Travique-AI/
 ├── app/
-│   ├── main.py              # Streamlit UI and app logic
+│   ├── main.py                  # Streamlit UI and app logic
 │   ├── services/
-│   │   └── ai_service.py    # Gemini API integration
-│   ├── components/          # Reusable UI components (upcoming)
-│   ├── pages/               # Multi-page routing (upcoming)
-│   └── utils/               # Helper functions (upcoming)
-├── data/                    # Datasets and saved itineraries (upcoming)
+│   │   ├── ai_service.py        # Gemini API integration
+│   │   ├── weather_service.py   # OpenWeather API integration
+│   │   └── chat_service.py      # Multi-turn chatbot logic
+│   └── pages/
+│       └── saved_trips.py       # Saved itineraries page
+├── data/
+│   └── database.py              # SQLite CRUD operations
 ├── .streamlit/
-│   └── config.toml          # Theme and server config
+│   └── config.toml              # Theme and server config
 ├── requirements.txt
 └── README.md
 
@@ -73,12 +107,15 @@ source venv/bin/activate     # Mac/Linux
 pip install -r requirements.txt
 ```
 
-**4. Add your API key**
+**4. Add your API keys**
 
 Create a `.env` file in the root folder:
 GEMINI_API_KEY=your_gemini_api_key_here
+OPENWEATHER_API_KEY=your_openweather_api_key_here
 
-Get a free key at: https://aistudio.google.com
+Get keys at:
+- Gemini: https://aistudio.google.com
+- OpenWeather: https://openweathermap.org/api
 
 **5. Run the app**
 ```bash
@@ -90,8 +127,10 @@ streamlit run main.py
 
 ## Deployment
 
-Deployed on Streamlit Community Cloud with secrets managed through 
+Deployed on Streamlit Community Cloud with secrets managed through
 the Streamlit secrets manager — API keys never touch GitHub.
+
+Auto-deploys on every push to `main`.
 
 ---
 
@@ -101,7 +140,7 @@ the Streamlit secrets manager — API keys never touch GitHub.
 - [x] INR budget system with smart labels
 - [x] Live weather integration
 - [x] Save and revisit past itineraries
-- [x] Multi-turn travel chatbot for follow-up questions
+- [x] Multi-turn travel chatbot
 - [ ] Cloud database (Supabase) for persistent saves on live app
 - [ ] Google Maps links for every location
 - [ ] PDF export of itineraries
@@ -111,5 +150,3 @@ the Streamlit secrets manager — API keys never touch GitHub.
 ## Author
 
 Naman Pal — [github.com/naman33](https://github.com/naman33)
----
-*Built with Python, Streamlit, and Google Gemini.
