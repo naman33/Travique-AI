@@ -1,12 +1,54 @@
 # Travique AI
 
-An AI-powered travel itinerary generator that creates personalised day-by-day 
-travel plans based on your destination, budget, interests, and food preferences.
+### AI-Powered Smart Travel Itinerary Generator
 
-Built with Python, Streamlit, and Google Gemini 2.5 Flash.
+> Paste a destination. Set your budget in ₹. Get a complete personalised 
+> day-by-day travel plan with live weather, cost estimates, and an AI 
+> travel assistant — in seconds.
 
-**Live app:** https://travique-ai.streamlit.app  
-**GitHub:** https://github.com/naman33/Travique-AI
+![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.57-red?logo=streamlit)
+![Gemini](https://img.shields.io/badge/Gemini-2.5%20Flash-orange?logo=google)
+![OpenWeather](https://img.shields.io/badge/OpenWeather-API-lightblue)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+[Live App](https://travique-ai.streamlit.app) · 
+[Quick Start](#run-locally) · 
+[Architecture](#architecture) · 
+[Features](#features)
+
+---
+
+## What is Travique AI?
+
+Travique AI is an end-to-end AI travel planner that generates 
+personalised day-by-day itineraries based on your destination, budget, 
+interests, travel style, and food preferences.
+
+It doesn't give generic suggestions. It fetches **live weather** for your 
+destination, builds a **weather-aware itinerary** with real place names and 
+cost estimates in Indian Rupees, and then lets you **chat with an AI assistant** 
+to modify the plan, get packing tips, or ask anything about your trip.
+User Inputs → Live Weather Data → Gemini 2.5 Flash → Day-wise Itinerary
+↓
+AI Travel Chatbot
+↓
+SQLite Persistence
+
+---
+
+## Features
+
+| Capability | Details |
+|---|---|
+| AI Itinerary Generation | Day-by-day plans with real places, timings, and cost estimates in ₹ |
+| Live Weather Integration | Fetches current weather via OpenWeather API and adjusts suggestions |
+| INR Budget System | Smart budget labels — Backpacker to Luxury — all costs in Indian Rupees |
+| Food Preferences | Vegetarian, Vegan, Halal, Jain, Street food, Desserts, and more |
+| Multi-turn AI Chatbot | Ask follow-ups — modify plans, get packing tips, find alternatives |
+| Save Itineraries | SQLite database — save, revisit, and delete past trips |
+| Download | Export any itinerary as a .txt file for offline use |
+| Suggestion Chips | One-click prompts to get started with the chatbot instantly |
 
 ---
 
@@ -26,45 +68,42 @@ Built with Python, Streamlit, and Google Gemini 2.5 Flash.
 
 ---
 
-## What it does
-
-- Generates complete day-by-day itineraries with real place names and timings
-- Fetches live weather for your destination and builds weather-aware suggestions
-- Adapts to your budget in Indian Rupees (INR) with smart budget labels
-- Respects food preferences — vegetarian, halal, Jain, street food, and more
-- Shows estimated costs per activity in INR
-- Multi-turn AI chatbot — modify the itinerary, get packing tips, ask anything
-- Save itineraries locally and revisit past trips
-- Download any itinerary as a text file for offline use
-
----
-
-## Tech stack
-
-| Layer | Technology |
-|---|---|
-| Frontend + Backend | Streamlit |
-| AI Model | Google Gemini 2.5 Flash |
-| Weather Data | OpenWeather API |
-| Database | SQLite |
-| Language | Python 3.13 |
-| Deployment | Streamlit Community Cloud |
-| Version Control | Git + GitHub |
-
----
-
 ## Architecture
 User Input (Streamlit Sidebar)
 ↓
-Weather Service → OpenWeather API
+Weather Service → OpenWeather API (live forecast)
+↓
+Prompt Engineering → Injects weather + preferences as context
 ↓
 AI Service → Google Gemini 2.5 Flash
 ↓
-Itinerary Display (Tabbed by Day)
+Structured Itinerary (parsed by DAY sections → tabbed display)
 ↓
-Travel Chatbot (Context-aware follow-ups)
+Travel Chatbot (full itinerary as context → multi-turn conversation)
 ↓
-SQLite Database (Save / View / Delete)
+SQLite Database (save / view / delete)
+
+---
+
+## Tech Stack
+
+**AI / LLM**
+- Google Gemini 2.5 Flash
+- Structured prompt engineering
+- Multi-turn conversation with context management
+
+**APIs**
+- OpenWeather API — live weather + 5-day forecast
+
+**Frontend + Backend**
+- Streamlit — UI, session state, multipage routing
+
+**Database**
+- SQLite — local persistence with full CRUD
+
+**Infrastructure**
+- Streamlit Community Cloud — deployment
+- Git + GitHub — version control with feature branching
 
 ---
 
@@ -73,15 +112,17 @@ Travique-AI/
 ├── app/
 │   ├── main.py                  # Streamlit UI and app logic
 │   ├── services/
-│   │   ├── ai_service.py        # Gemini API integration
+│   │   ├── ai_service.py        # Gemini API + prompt engineering
 │   │   ├── weather_service.py   # OpenWeather API integration
 │   │   └── chat_service.py      # Multi-turn chatbot logic
 │   └── pages/
 │       └── saved_trips.py       # Saved itineraries page
 ├── data/
 │   └── database.py              # SQLite CRUD operations
+├── docs/
+│   └── screenshots/             # App screenshots
 ├── .streamlit/
-│   └── config.toml              # Theme and server config
+│   └── config.toml              # Dark theme config
 ├── requirements.txt
 └── README.md
 
@@ -144,9 +185,14 @@ Auto-deploys on every push to `main`.
 - [ ] Cloud database (Supabase) for persistent saves on live app
 - [ ] Google Maps links for every location
 - [ ] PDF export of itineraries
+- [ ] Voice input support
 
 ---
 
 ## Author
 
 Naman Pal — [github.com/naman33](https://github.com/naman33)
+
+---
+
+*Built with Python, Streamlit, and Google Gemini 2.5 Flash*
